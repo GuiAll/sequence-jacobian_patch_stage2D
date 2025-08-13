@@ -157,20 +157,22 @@ class Continuous2D(Stage):
                                        inputs[self.policy[0] + '_grid'], inputs[self.policy[1] + '_grid'])
     
     def backward_step_shock(self, ss, shocks, precomputed):
-        space1, space2, i1, i2, grid1, grid2, f = precomputed
+        space1, space2, i1, i2, pi1_ss, pi2_ss, grid1, grid2, f = precomputed
         outputs = f.diff(shocks)
         dpi1 = -outputs[self.policy[0]] / space1
         dpi2 = -outputs[self.policy[1]] / space2
-        return outputs, ShockedPolicyLottery2D(i1, dpi1, i2, dpi2, grid1, grid2)
+        return outputs, ShockedPolicyLottery2D(i1, dpi1, pi1_ss, i2, dpi2, pi2_ss, grid1, grid2)
 
     def precompute(self, ss, ss_lawofmotion):
         i1 = ss_lawofmotion.i1.reshape(ss_lawofmotion.shape)
         i2 = ss_lawofmotion.i2.reshape(ss_lawofmotion.shape)
+        pi1_ss = ss_lawofmotion.pi1.reshape(ss_lawofmotion.shape)
+        pi2_ss = ss_lawofmotion.pi2.reshape(ss_lawofmotion.shape)
         grid1 = ss_lawofmotion.grid1
         grid2 = ss_lawofmotion.grid2
 
         return (grid1[i1 + 1] - grid1[i1], grid2[i2 + 1] - grid2[i2],
-                i1, i2, grid1, grid2, self.f.differentiable(ss))
+                i1, i2, pi1_ss, pi2_ss, grid1, grid2, self.f.differentiable(ss))
 
 
 class ExogenousMaker:
