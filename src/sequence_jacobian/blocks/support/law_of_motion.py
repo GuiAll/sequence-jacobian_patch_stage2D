@@ -110,9 +110,14 @@ class PolicyLottery2D(LawOfMotion):
 
 
 class ShockedPolicyLottery2D(PolicyLottery2D):
+    def __init__(self,i1, dpi1, pi1_ss, i2, dpi2, pi2_ss, grid1, grid2, forward=True):
+        super().__init__(i1, pi1_ss, i2, pi2_ss, grid1, grid2, forward=forward)
+        self.dpi1 = dpi1.reshape(self.flatshape)
+        self.dpi2 = dpi2.reshape(self.flatshape)
+    
     def __matmul__(self, X):
         if self.forward:
-            return het_compiled.forward_policy_shock_2d(X.reshape(self.flatshape), self.i, self.pi).reshape(self.shape)
+            return het_compiled.forward_policy_shock_2d(X.reshape(self.flatshape), self.i1, self.i2,  self.pi1, self.pi2, self.dpi1, self.dpi2).reshape(self.shape)
         else:
             raise NotImplementedError
 
